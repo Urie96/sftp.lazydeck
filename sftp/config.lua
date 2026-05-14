@@ -7,7 +7,7 @@ local defaults = {
 }
 
 local function normalize_profile(name, profile)
-  local out = lc.tbl_extend('force', {}, profile or {})
+  local out = deck.tbl_extend('force', {}, profile or {})
   out.name = name
   out.host = tostring(out.host or '')
   out.user = tostring(out.user or '')
@@ -19,7 +19,7 @@ local function normalize_profile(name, profile)
 end
 
 function M.new(opt)
-  local cfg = lc.tbl_deep_extend('force', defaults, opt or {})
+  local cfg = deck.tbl_deep_extend('force', defaults, opt or {})
   local profiles = {}
   for name, profile in pairs(cfg.profiles or {}) do
     profiles[name] = normalize_profile(name, profile)

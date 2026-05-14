@@ -36,7 +36,7 @@ end
 
 local function tempfile_for_handle(handle, prefix)
   local suffix = tostring(handle.name or ''):match '(%.[^./]+)$'
-  local path, err = lc.fs.tempfile({
+  local path, err = deck.fs.tempfile({
     prefix = prefix,
     suffix = suffix,
   })
@@ -56,12 +56,12 @@ local function handle_error(out, fallback)
 end
 
 local function new_control_path(profile)
-  local path, err = lc.fs.tempfile({
-    prefix = 'lazycmd-sftp-' .. tostring(profile.name) .. '-',
+  local path, err = deck.fs.tempfile({
+    prefix = 'lazydeck-sftp-' .. tostring(profile.name) .. '-',
     suffix = '.sock',
   })
   if err then return nil, err end
-  lc.fs.remove(path)
+  deck.fs.remove(path)
   return path
 end
 
@@ -104,7 +104,7 @@ local function run_ssh(profile, state, extra_args, opts, cb)
     table.insert(cmd, arg)
   end
   table.insert(cmd, build_target(profile))
-  lc.system(cmd, opts or {}, function(out)
+  deck.system(cmd, opts or {}, function(out)
     if out.code == 0 then
       cb(out, nil)
       return
@@ -241,7 +241,7 @@ function M:ensure_connection(cb)
   table.insert(cmd, '-fnNT')
   table.insert(cmd, build_target(self.profile))
 
-  lc.system(cmd, function(out)
+  deck.system(cmd, function(out)
     self.state.connecting = false
     if out.code == 0 then
       self.state.ready = true
@@ -251,7 +251,7 @@ function M:ensure_connection(cb)
 
     local connect_err = handle_error(out, 'failed to establish ssh control master')
     if self.state.control_path then
-      lc.fs.remove(self.state.control_path)
+      deck.fs.remove(self.state.control_path)
     end
     self.state.control_path = nil
     self.state.ready = false
@@ -275,7 +275,7 @@ function M:exec_remote(script, args, cb)
       table.insert(cmd, tostring(arg))
     end
 
-    lc.system(cmd, { stdin = script }, function(out)
+    deck.system(cmd, { stdin = script }, function(out)
       if out.code == 0 then
         cb(out, nil)
         return
@@ -293,7 +293,7 @@ function M:close(cb)
 
   local control_path = self.state.control_path
   run_ssh(self.profile, self.state, { '-O', 'exit' }, nil, function(_, _)
-    lc.fs.remove(control_path)
+    deck.fs.remove(control_path)
     self.state.control_path = nil
     self.state.ready = false
     self.state.connecting = false
@@ -418,16 +418,16 @@ function M:read_file(handle, opts, cb)
 end
 
 function M:edit(handle)
-  local tmp, err = tempfile_for_handle(handle, 'lazycmd-sftp-edit-')
+  local tmp, err = tempfile_for_handle(handle, 'lazydeck-sftp-edit-')
   if not tmp then
-    lc.notify('Failed to create tempfile: ' .. tostring(err))
+    deck.notify('Failed to create tempfile: ' .. tostring(err))
     return
   end
 
   self:ensure_connection(function(ok, connect_err)
     if not ok then
-      lc.fs.remove(tmp)
-      lc.notify('SFTP connection failed: ' .. tostring(connect_err))
+      deck.fs.remove(tmp)
+      deck.notify('SFTP connection failed: ' .. tostring(connect_err))
       return
     end
 
@@ -454,16 +454,16 @@ function M:edit(handle)
       table.insert(cmd, arg)
     end
 
-    lc.interactive({
+    deck.interactive({
       table.unpack(cmd),
     }, {
       wait_confirm = function(code) return code ~= 0 end,
     }, function(exit_code)
-      lc.fs.remove(tmp)
+      deck.fs.remove(tmp)
       if exit_code ~= 0 then return end
-      lc.notify('Edited ' .. tostring(handle.path))
-      if lc.deep_equal(self:encode_page_path(handle), lc.api.get_hovered_path() or {}) then
-        lc.cmd 'scroll_by 0'
+      deck.notify('Edited ' .. tostring(handle.path))
+      if deck.deep_equal(self:encode_page_path(handle), deck.api.get_hovered_path() or {}) then
+        deck.cmd 'scroll_by 0'
       end
     end)
   end)

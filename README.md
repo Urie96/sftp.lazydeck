@@ -1,4 +1,4 @@
-# sftp.lazycmd
+# sftp.lazydeck
 
 基于 `file` 浏览器框架的远程文件系统插件。
 
@@ -16,7 +16,7 @@
 
 ```lua
 {
-  dir = 'plugins/sftp.lazycmd',
+  dir = 'plugins/sftp.lazydeck',
   config = function()
     require('sftp').setup {
       profiles = {

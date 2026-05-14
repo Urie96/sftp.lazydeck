@@ -10,13 +10,13 @@ local runtime = {
 }
 
 local function span(text, color)
-  local s = lc.style.span(tostring(text or ''))
+  local s = deck.style.span(tostring(text or ''))
   if color and color ~= '' then s = s:fg(color) end
   return s
 end
 
-local function line(parts) return lc.style.line(parts) end
-local function text(lines) return lc.style.text(lines) end
+local function line(parts) return deck.style.line(parts) end
+local function text(lines) return deck.style.text(lines) end
 
 local function info_entry(key, message, color)
   return {
@@ -113,12 +113,12 @@ function M.setup(opt)
   end
   runtime.browsers = {}
 
-  if not lc.system.executable 'ssh' then
-    lc.notify 'ssh command not found'
-    lc.log('warn', 'ssh command not found')
+  if not deck.system.executable 'ssh' then
+    deck.notify 'ssh command not found'
+    deck.log('warn', 'ssh command not found')
   end
-  lc.plugin.load("file")
-  lc.hook.pre_quit(function()
+  deck.plugin.load("file")
+  deck.hook.pre_quit(function()
     for _, browser in pairs(runtime.browsers) do
       if browser and browser.provider and browser.provider.close then
         browser.provider:close()
@@ -141,10 +141,10 @@ function M.list(path, cb)
     return
   end
 
-  local expected_path = lc.api.get_current_path() or {}
+  local expected_path = deck.api.get_current_path() or {}
   local browser = get_browser(profile_name)
   browser:list(path, function(entries)
-    if lc.deep_equal(expected_path, lc.api.get_current_path() or {}) then
+    if deck.deep_equal(expected_path, deck.api.get_current_path() or {}) then
       cb(entries)
     end
   end)
