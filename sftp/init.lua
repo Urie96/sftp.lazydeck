@@ -4,6 +4,14 @@ local Provider = require 'sftp.provider'
 
 local M = {}
 
+function M.meta()
+  return {
+    icon = '󰈁',
+    desc = 'SFTP file browser',
+    color = 'cyan',
+  }
+end
+
 local runtime = {
   cfg = config.new(),
   browsers = {},
